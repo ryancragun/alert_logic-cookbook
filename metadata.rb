@@ -15,6 +15,5 @@ recipe "alert_logic::install_threat_manager", "Installs Alert Logic Threat Manag
 attribute "alert_logic/secret_key", 
   :display_name => "Alert Logic Secret Key",
   :description => "The Secret Key required to provision Alert Logic Threat Manager",
-  :default => "",
   :required => "required",
   :recipes => ["alert_logic::install_threat_manager"]
