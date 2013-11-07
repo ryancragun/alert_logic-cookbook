@@ -12,7 +12,7 @@ Please see the metadata.rb for current cookbook dependencies.  Currently `rights
 
 # Usage
 
-Add recipe `alert_logic::install_threat_manager` to the nodes run_list along with the node[:alert_logic][:secret_key]` attribute.
+Add recipe `alert_logic::install_threat_manager` to the nodes run_list along with the `node[:alert_logic][:secret_key]` attribute.
 
 # Attributes
 
