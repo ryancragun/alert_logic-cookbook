@@ -17,4 +17,4 @@
 #
 
 # Secret Key
-default[:alert_logic][:secret_key] = ""
+default[:alert_logic][:secret_key] = "use_your_key"
