@@ -17,6 +17,7 @@ Add recipe `alert_logic::install_threat_manager` to the nodes run_list along wit
 # Attributes
 
 `node[:alert_logic][:secret_key]`
+
 `node[:alert_logic][:appliance_name]`
 
 # Recipes
