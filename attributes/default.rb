@@ -18,3 +18,4 @@
 
 # Secret Key
 default[:alert_logic][:secret_key] = "use_your_key"
+default[:alert_logic][:appliance_name] = "aws_id_of_appliance"

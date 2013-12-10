@@ -17,3 +17,11 @@ attribute "alert_logic/secret_key",
   :description => "The Secret Key required to provision Alert Logic Threat Manager",
   :required => "required",
   :recipes => ["alert_logic::install_threat_manager"]
+
+attribute "alert_logic/appliance_name", 
+  :display_name => "Alert Logic Appliance Name",
+  :description => 
+    "The Name of the Alert Logic appliance that you wish to register the Server with." +
+    " On AWS this is commonly the AWS ID of the running Appliance, eg: i-34eb453",
+  :required => "required",
+  :recipes => ["alert_logic::install_threat_manager"]

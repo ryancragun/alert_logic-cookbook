@@ -45,15 +45,23 @@ package package_name do
   action :install
 end
 
+%w(json rest-client).each { |gem| chef_gem gem }
+
 service "al-threat-host" do 
   action :enable
 end
 
-execute "provision host" do
+execute "provision-host" do
   command "/etc/init.d/al-threat-host provision --key #{node[:alert_logic][:secret_key]} --inst-type host"
   action :run
-  notifies :start, "service[al-threat-host]"
+  notifies :start, "service[al-threat-host]", :immediately
   only_if { ::File.exists?("/etc/init.d/al-threat-host") }
+end
+
+ruby_block "register-with-alert-logic-appliance" do
+  block do
+    AlertLogic::Helper.register_with_appliance(node)
+  end
 end
 
 log "   Threat Manager installation completed."

@@ -1,6 +1,0 @@
-{
-  "alert_logic": { "secret_key": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
-  "run_list": [
-    "recipe[alert_logic::install_threat_manager]"
-  ]
-}
