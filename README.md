@@ -2,7 +2,7 @@
 
 This cookbook is available at [https://github.com/ryancragun/alert_logic-cookbook](https://github.com/ryancragun/alert_logic-cookbook)
 
-This cookbook dowloads, installs, and configures a Server as an Alert Logic Threat Manager host node.
+This cookbook dowloads, installs, and configures a Server as an Alert Logic Threat Manager host node.  It also dynamically adds itself to a specific appliance by using the appliance name.
 
 # Requirements
 
@@ -17,6 +17,7 @@ Add recipe `alert_logic::install_threat_manager` to the nodes run_list along wit
 # Attributes
 
 `node[:alert_logic][:secret_key]`
+`node[:alert_logic][:appliance_name]`
 
 # Recipes
 
