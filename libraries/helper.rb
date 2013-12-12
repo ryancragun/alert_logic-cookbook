@@ -80,11 +80,31 @@ module AlertLogic
     end
 
     def get_protected_host
+      res = get_protected_host_by_ip
+      if res.empty?
+        fallback = get_protected_host_by_fqdn
+        fallback.empty? ? {} : fallback.first
+      else
+        res.first
+      end
+    end
+
+    def get_protected_host_by_ip
       params = {
         'status.status' => 'ok',
-        'metadata.local_ipv4' => @node['ipaddress']
+        'metadata.local_ipv4' => @node[:ipaddress]
       }
-      do_get('protectedhost', params).first
+      do_get('protectedhost', params)
+    end
+
+    def get_protected_host_by_fqdn
+      hosts = do_get('protectedhost')
+      hosts.select do |host|
+        host['protectedhost']['metadata']['local_hostname'] == @node[:fqdn] &&
+        host['protectedhost']['metadata']['local_ipv4'].any? do |ip| 
+          ip == @node[:ipaddress]
+        end
+      end
     end
 
     def get_appliance_assignment_policy(appliance_id)
