@@ -2,18 +2,29 @@ require 'rest_client'
 require 'json'
 
 module AlertLogic
+  # Module methods for easy use in providers
   module Helper
-    def self.register_with_appliance(node)
-      AlertLogic::ApiUtil.new(node).register_with_appliance
+    def self.register_with_appliance(key, appliance, ip, fqdn)
+      AlertLogic::ApiUtil.new(key, appliance, ip, fqdn).register_with_appliance
+    end
+
+    def self.host_is_registered?(key, appliance, ip, fqdn)
+      AlertLogic::ApiUtil.new(key, appliance, ip, fqdn).host_is_registered?
     end
   end
 
+  # Prototype ApiUtil class to handle the Alert Logic API.
+  # TODO: Break this class down and refactor with proper exception handling and
+  #       and define common interfaces.
   class ApiUtil
-    attr_accessor :node, :api
+    attr_accessor :ip, :fqdn, :api, :secret_key, :appliance_name
 
-    def initialize(node)
-      @node = node
-      @api = create_api_resource
+    def initialize(secret_key, appliance_name, ip, fqdn)
+      @secret_key     = secret_key
+      @appliance_name = appliance_name
+      @ip             = ip
+      @fqdn           = fqdn
+      @api            = create_api_resource
     end
 
     def register_with_appliance
@@ -26,7 +37,7 @@ module AlertLogic
         end
       else
         message = 'Could not find an operational appliance with name: '
-        message << @node[:alert_logic][:appliance_name]
+        message << @appliance_name
         fail message
       end
     end
@@ -35,7 +46,7 @@ module AlertLogic
       root_resource = 'https://publicapi.alertlogic.net/api/tm/v1/'
       RestClient::Resource.new(
         root_resource,
-        :user => @node[:alert_logic][:secret_key],
+        :user => @secret_key,
         :headers => { :accept => :json }
       )
     end
@@ -46,11 +57,11 @@ module AlertLogic
       else
         fail "Error Making API Call: #{api_call.net_http_res}"
       end
-    rescue Exception => e
+    rescue RestClient::RequestFailed => e
       raise "Error with API Call: #{e.message} #{e.response} #{api_call}"
     end
 
-    def do_get(resource, params={})
+    def do_get(resource, params = {})
       parse_api_response(
         @api[pluralize(resource)].get(:params => params)
       )[pluralize(resource)]
@@ -72,7 +83,7 @@ module AlertLogic
     def get_appliance
       params = {
         'status.status' => 'ok',
-        'name' => @node[:alert_logic][:appliance_name]
+        'name' => @appliance_name
       }
       do_get('appliance', params).first
     end
@@ -90,7 +101,7 @@ module AlertLogic
     def get_protected_host_by_ip
       params = {
         'status.status' => 'ok',
-        'metadata.local_ipv4' => @node[:ipaddress]
+        'metadata.local_ipv4' => @ip
       }
       do_get('protectedhost', params)
     end
@@ -98,9 +109,9 @@ module AlertLogic
     def get_protected_host_by_fqdn
       hosts = do_get('protectedhost')
       hosts.select do |host|
-        host['protectedhost']['metadata']['local_hostname'] == @node[:fqdn] &&
+        host['protectedhost']['metadata']['local_hostname'] == @fqdn &&
         host['protectedhost']['metadata']['local_ipv4'].any? do |ip|
-          ip == @node[:ipaddress]
+          ip == @ip
         end
       end
     end
@@ -125,6 +136,8 @@ module AlertLogic
           resource[resource_type]['metadata']['local_ipv4']
         ).flatten
       end.flatten # no #flat_map in Ruby 1.8
+    rescue
+      []
     end
 
     def have_ip_match?(a, b)
@@ -135,13 +148,17 @@ module AlertLogic
       string =~ /^\w+y$/ ? string.gsub('y', 'ies') : "#{string}s"
     end
 
+    def get_host_assigned_id
+      host = get_protected_host
+      return nil if host.empty?
+      host['appliance']['id']['assigned_to']
+    rescue
+      nil
+    end
+
     def host_is_registered?
       appliance_id = get_appliance['appliance']['id']
-      assigned_id = if !get_protected_host['protectedhost']['appliance'].nil?
-        get_protected_host['protectedhost']['appliance']['assigned_to']
-      else
-        nil
-      end
+      assigned_id = get_host_assigned_id
 
       if appliance_id == assigned_id
         true
