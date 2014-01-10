@@ -140,7 +140,7 @@ module AlertLogic
       []
     end
 
-    def have_ip_match?(a, b)
+    def ip_match?(a, b)
       (a & b).empty? ? false : true
     end
 
@@ -166,7 +166,7 @@ module AlertLogic
         assigned_hosts = get_assigned_hosts(appliance_id)
         assigned_hosts_ips = get_resource_ips('protectedhost', assigned_hosts)
         host_ips = get_resource_ips('protectedhost', get_protected_host)
-        have_ip_match?(assigned_hosts_ips, host_ips)
+        ip_match?(assigned_hosts_ips, host_ips)
       end
     end
 
