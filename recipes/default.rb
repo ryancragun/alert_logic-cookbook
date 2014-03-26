@@ -17,15 +17,12 @@
 # limitations under the License.
 
 file_cache = ::File.join(::File.dirname(__FILE__), '..', 'files', 'default')
-gem_sandbox = '/opt/rightscale/sandbox/bin/gem'
 version = '0.1.1'
 pkg = "alert_logic-#{version}.gem"
 
-g = gem_package "#{file_cache}/#{pkg}" do
-  gem_binary gem_sandbox
-  action :nothing
+chef_gem "#{file_cache}/#{pkg}" do
+  action :install
 end
-g.run_action(:install)
 
 Gem.clear_paths
 require 'alert_logic'
