@@ -16,19 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-bash 'unfrezee gemrc' do
-  code <<-CODE
-    if [[ -e /root/.gemrc ]]; then
-      sed -i '/:sources:/a - https://rubygems.org' /root/.gemrc
-    fi
-  CODE
-  action :nothing
-end.run_action(:run)
+file_cache = ::File.join(::File.dirname(__FILE__), '..', 'files', 'default')
+gem_sandbox = '/opt/rightscale/sandbox/bin/gem'
+version = '0.1.1'
+package = "alert_logic-#{version}.gem"
 
-gem 'alert_logic' do
-  gem_binary('/opt/rightscale/sandbox/bin/gem')
-  version '0.1.1'
+g = gem_package "#{file_cache}/#{package}" do
+  gem_binary gem_sandbox
   action :nothing
-end.run_action(:install)
+end
+g.run_action(:install)
 
+Gem.clear_paths
 require 'alert_logic'
