@@ -16,9 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+bash 'unfrezee gemrc' do
+  code <<-CODE
+    if [[ -e /root/.gemrc ]]; then
+      sed -i '/:sources:/a - https://rubygems.org' /root/.gemrc
+    fi
+  CODE
+  action :nothing
+end.run_action(:run)
+
 chef_gem 'alert_logic' do
   version '0.1.1'
-  action :nothing
-end.run_action(:install)
+  action :install
+end
 
 require 'alert_logic'
