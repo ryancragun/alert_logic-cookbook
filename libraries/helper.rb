@@ -9,7 +9,7 @@ module AlertLogic
       host.assign_appliance(appliance)
     rescue => e
       Chef::Log.info "Error: #{e.message}, retrying..."
-      retry unless (tries -= 1).zero?
+      sleep(60) && retry unless (tries -= 1).zero?
     end
 
     def self.host_is_registered?(key, appliance, ip, fqdn)
