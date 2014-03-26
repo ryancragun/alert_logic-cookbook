@@ -25,9 +25,10 @@ bash 'unfrezee gemrc' do
   action :nothing
 end.run_action(:run)
 
-chef_gem 'alert_logic' do
+gem 'alert_logic' do
+  gem_binary('/opt/rightscale/sandbox/bin/gem')
   version '0.1.1'
-  action :install
-end
+  action :nothing
+end.run_action(:install)
 
 require 'alert_logic'
