@@ -19,16 +19,14 @@
 include AlertLogic::Helper
 
 def whyrun_supported?
-  true
+  false
 end
 
 action :install do
   if @current_resource.installed
     Chef::Log.info "#{new_resource} is already installed."
   else
-    converge_by("Install #{new_resource}") do
-      install_threat_manager
-    end
+    install_threat_manager
   end
 end
 
@@ -36,24 +34,21 @@ action :register do
   if @current_resource.registered
     Chef::Log.info "#{new_resource} is already registered."
   else
-    converge_by("Register #{new_resource}") do
-      register_threat_manager
-    end
+    register_threat_manager
   end
 end
 
 action :remove do
   if @current_resource.installed
-    converge_by("Remove #{new_resource}") do
-      remove_threat_manager
-    end
+    remove_threat_manager
   else
     Chef::Log.info "#{@current_resource} is not installed."
   end
 end
 
 def load_current_resource
-  @current_resource = Chef::Resource::AlertLogicThreatManager.new(new_resource.name)
+  @current_resource =
+    Chef::Resource::AlertLogicThreatManager.new(new_resource.name)
   @current_resource.name(new_resource.name)
   @current_resource.secret_key(new_resource.secret_key)
   @current_resource.appliance_name(new_resource.appliance_name)
@@ -122,6 +117,8 @@ def install_threat_manager
   package_href = download_base_href + package_name
   package_file = "#{Chef::Config[:file_cache_path]}/#{package_name}"
 
+  log package_file
+
   remote_file package_file do
     source package_href
     action :create_if_missing
@@ -130,6 +127,14 @@ def install_threat_manager
   end
 
   package package_name do
+    provider  value_for_platform(
+                %w(centos redhat suse fedora) => {
+                  'default' => Chef::Provider::Package::Rpm
+                },
+                %w(ubuntu debian) => {
+                  'default' => Chef::Provider::Package::Dpkg
+                }
+              )
     source package_file
     action :install
   end
@@ -139,7 +144,9 @@ def install_threat_manager
   end
 
   execute 'provision-host' do
-    command   "/etc/init.d/al-threat-host provision --key #{secret_key} --inst-type host"
+    cmd = "/etc/init.d/al-threat-host provision --key #{secret_key}"
+    cmd << ' --inst-type host'
+    command   cmd
     action    :run
     notifies  :start, 'service[al-threat-host]', :immediately
     only_if   { ::File.exists?('/etc/init.d/al-threat-host') }

@@ -16,11 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-rightscale_marker
-
 include_recipe 'alert_logic::default'
 
 alert_logic_threat_manager node[:hostname] do
-  action          [:install, :register]
+  action [:install, :register]
 end

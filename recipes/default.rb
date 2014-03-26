@@ -16,4 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-%w(json rest-client).each { |gem| chef_gem gem }
+chef_gem 'alert_logic' do
+  version '0.1.1'
+  action :nothing
+end.run_action(:install)
+
+require 'alert_logic'
