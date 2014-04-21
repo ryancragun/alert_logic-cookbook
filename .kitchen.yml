@@ -1,0 +1,24 @@
+---
+driver:
+  name: rightscale_vagrant
+  customize:
+    memory: 1024
+
+provisioner:
+  name: chef_right_link
+
+platforms:
+  - name: ubuntu-12.04
+    driver:
+      box: RightImage_Ubuntu_12.04_x64_v13.5.2
+      box_url: https://rightscale-vagrant.s3.amazonaws.com/virtualbox/ubuntu/12.04/RightImage_Ubuntu_12.04_x64_v13.5.2.box
+  - name: centos-6.5
+    driver:
+      box: RightImage_CentOS_6.5_x64_v13.5.2
+      box_url: https://rightscale-vagrant.s3.amazonaws.com/virtualbox/centos/6.5/RightImage_CentOS_6.5_x64_v13.5.2.box
+
+suites:
+  - name: default
+    run_list:
+      - recipe[alert_logic::install_threat_manager]
+    attributes:

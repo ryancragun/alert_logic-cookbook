@@ -13,6 +13,5 @@ Gemfile.lock
 bin/*
 .bundle/*
 runlists/*
-.kitchen.yml
 .kitchen/
 .kitchen.local.yml
